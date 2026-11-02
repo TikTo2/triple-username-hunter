@@ -1,307 +1,164 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Triple Username Checker</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triple Hunter</title>
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  padding: 18px;
-  background: #10121a;
-  color: white;
-  font-family: Arial, sans-serif;
+*{box-sizing:border-box}
+body{
+ margin:0;background:#0d1117;color:#fff;
+ font-family:Arial,sans-serif;padding:20px
 }
-
-.container {
-  max-width: 650px;
-  margin: auto;
+.container{max-width:650px;margin:auto}
+header{text-align:center;padding:25px 0}
+h1{color:#58a6ff;font-size:32px}
+p{color:#9ca3af}
+.panel{
+ background:#161b22;border:1px solid #30363d;
+ padding:18px;border-radius:14px;margin:15px 0
 }
-
-h1 {
-  text-align: center;
-  color: #e7a6ff;
+button,input,select{
+ padding:12px;border-radius:9px;border:1px solid #444;
+ background:#21262d;color:white;font-size:15px
 }
-
-.subtitle {
-  text-align: center;
-  color: #aaa;
+button{cursor:pointer}
+.primary{background:#238636;width:100%;margin-top:12px}
+.results{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.item{
+ background:#21262d;border:1px solid #30363d;
+ border-radius:10px;padding:12px;text-align:center
 }
-
-.panel {
-  background: #1c2030;
-  padding: 15px;
-  border-radius: 13px;
-  margin: 15px 0;
-}
-
-input, button {
-  padding: 12px;
-  border-radius: 8px;
-  border: 0;
-  font-size: 15px;
-}
-
-input {
-  width: 100%;
-  background: #10121a;
-  color: white;
-  border: 1px solid #444;
-  margin-bottom: 10px;
-}
-
-button {
-  cursor: pointer;
-  background: #7652d8;
-  color: white;
-  margin: 3px;
-}
-
-button.secondary {
-  background: #34394b;
-}
-
-button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-}
-
-.stats {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  color: #b9b9c8;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-  background: #22283a;
-  padding: 10px;
-  margin: 7px 0;
-  border-radius: 9px;
-}
-
-.username {
-  direction: ltr;
-  font-size: 19px;
-  font-weight: bold;
-}
-
-.actions {
-  display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
-}
-
-.actions button {
-  font-size: 12px;
-  padding: 9px;
-}
-
-.note {
-  color: #ffce77;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-#results {
-  margin-top: 15px;
-}
-
+.username{font-size:23px;font-weight:bold;color:#58a6ff}
+.actions{display:flex;gap:6px;margin-top:10px}
+.actions button{flex:1;font-size:12px}
+.stats{display:flex;justify-content:space-around;text-align:center}
+.stats strong{display:block;color:#58a6ff;font-size:22px}
+input{width:100%;margin:7px 0}
 </style>
 </head>
-
 <body>
 <div class="container">
 
-<h1>Triple Username Checker</h1>
-<p class="subtitle">مولّد وفاحص مساعد ليوزرات إنستغرام الثلاثية</p>
+<header>
+<h1>TRIPLE HUNTER</h1>
+<p>Instagram Username Assistant</p>
+</header>
 
 <div class="panel">
-  <h3>إعدادات البحث</h3>
+<h3>إعدادات التوليد</h3>
 
-  <input id="search"
-    placeholder="ابحث عن اسم مثل a7x"
-    oninput="searchNames()">
+<label>نوع التركيبات</label>
+<select id="type">
+<option value="all">جميع التركيبات الثلاثية</option>
+<option value="letters">أحرف فقط</option>
+<option value="numbers">أرقام فقط</option>
+<option value="mixed">أحرف وأرقام</option>
+</select>
 
-  <button onclick="start()">عرض جميع التركيبات</button>
-  <button class="secondary" onclick="downloadList()">
-    تحميل القائمة
-  </button>
+<label>عدد النتائج المعروضة</label>
+<select id="limit">
+<option value="100">100</option>
+<option value="500">500</option>
+<option value="1000">1000</option>
+<option value="5000">5000</option>
+<option value="46656">الكل</option>
+</select>
 
-  <div class="stats">
-    <p>إجمالي التركيبات: <b>46,656</b></p>
-    <p>المعروض: <b id="shown">0</b></p>
-  </div>
+<button class="primary" onclick="generate()">
+توليد اليوزرات
+</button>
+</div>
+
+<div class="panel stats">
+<div><strong id="total">0</strong>النتائج</div>
+<div><strong>46,656</strong>إجمالي التركيبات</div>
 </div>
 
 <div class="panel">
-  <h3>النتائج</h3>
-  <div id="results"></div>
-
-  <div style="text-align:center;margin-top:15px">
-    <button class="secondary" onclick="previousPage()">
-      السابق
-    </button>
-    <span id="page">1</span>
-    <button class="secondary" onclick="nextPage()">
-      التالي
-    </button>
-  </div>
+<input id="search" placeholder="ابحث عن يوزر..." oninput="render()">
+<button onclick="copyAll()">نسخ النتائج المعروضة</button>
 </div>
 
-<p class="note">
-تنبيه: هذه الأداة تولّد أسماء وتفتح صفحات إنستغرام فقط.
-لا تعتبر اختفاء الحساب أو ظهور صفحة غير موجودة دليلاً على توفر الاسم.
-تأكد من إمكانية اختيار الاسم من داخل إنستغرام.
+<div id="results" class="results"></div>
+
+<p style="text-align:center">
+الفحص النهائي للتوفر يتم يدوياً عبر إنستغرام.
 </p>
-
 </div>
 
 <script>
-const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+let usernames=[];
+let shown=[];
 
-let allNames = [];
-let filtered = [];
-let currentPage = 1;
-const pageSize = 100;
+function generate(){
+ usernames=[];
 
-function generate() {
-  const names = [];
+ const type=document.getElementById("type").value;
+ const limit=Number(document.getElementById("limit").value);
 
-  for (const a of chars) {
-    for (const b of chars) {
-      for (const c of chars) {
-        names.push(a + b + c);
-      }
-    }
-  }
+ for(let a of chars){
+ for(let b of chars){
+ for(let c of chars){
 
-  return names;
+ const name=a+b+c;
+ const letters=/^[a-z]+$/.test(name);
+ const numbers=/^[0-9]+$/.test(name);
+
+ if(type==="letters"&&!letters)continue;
+ if(type==="numbers"&&!numbers)continue;
+ if(type==="mixed"&&(letters||numbers))continue;
+
+ usernames.push(name);
+ }
+ }
+ }
+
+ usernames=usernames.slice(0,limit);
+ render();
 }
 
-function start() {
-  if (!allNames.length) {
-    allNames = generate();
-  }
+function render(){
+ const query=document.getElementById("search").value.toLowerCase();
+ shown=usernames.filter(u=>u.includes(query));
+ document.getElementById("total").textContent=shown.length;
 
-  filtered = allNames;
-  currentPage = 1;
-  render();
+ const area=document.getElementById("results");
+ area.innerHTML="";
+
+ shown.slice(0,200).forEach(name=>{
+ const card=document.createElement("div");
+ card.className="item";
+
+ const title=document.createElement("div");
+ title.className="username";
+ title.textContent=name;
+
+ const actions=document.createElement("div");
+ actions.className="actions";
+
+ const copy=document.createElement("button");
+ copy.textContent="نسخ";
+ copy.onclick=()=>navigator.clipboard.writeText(name);
+
+ const open=document.createElement("button");
+ open.textContent="فتح إنستغرام";
+ open.onclick=()=>window.open(
+ "https://www.instagram.com/"+name+"/","_blank"
+ );
+
+ actions.append(copy,open);
+ card.append(title,actions);
+ area.append(card);
+ });
 }
 
-function searchNames() {
-  if (!allNames.length) {
-    allNames = generate();
-  }
-
-  const q = document.getElementById("search")
-    .value.toLowerCase().trim();
-
-  filtered = allNames.filter(name => name.includes(q));
-  currentPage = 1;
-  render();
+function copyAll(){
+ navigator.clipboard.writeText(shown.join("\n"));
 }
 
-function render() {
-  const results = document.getElementById("results");
-  results.innerHTML = "";
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const pageItems = filtered.slice(
-    startIndex, startIndex + pageSize
-  );
-
-  pageItems.forEach(name => {
-    const item = document.createElement("div");
-    item.className = "item";
-
-    const username = document.createElement("span");
-    username.className = "username";
-    username.textContent = name;
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const copy = document.createElement("button");
-    copy.textContent = "نسخ";
-    copy.onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(name);
-        copy.textContent = "تم النسخ";
-        setTimeout(() => copy.textContent = "نسخ", 1200);
-      } catch {
-        prompt("انسخ الاسم:", name);
-      }
-    };
-
-    const open = document.createElement("button");
-    open.textContent = "فتح إنستغرام";
-    open.className = "secondary";
-    open.onclick = () => {
-      window.open(
-        "https://www.instagram.com/" + name + "/",
-        "_blank",
-        "noopener"
-      );
-    };
-
-    actions.append(copy, open);
-    item.append(username, actions);
-    results.appendChild(item);
-  });
-
-  document.getElementById("shown").textContent =
-    filtered.length.toLocaleString();
-
-  document.getElementById("page").textContent =
-    currentPage + " / " +
-    Math.max(1, Math.ceil(filtered.length / pageSize));
-}
-
-function nextPage() {
-  if (currentPage * pageSize < filtered.length) {
-    currentPage++;
-    render();
-  }
-}
-
-function previousPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    render();
-  }
-}
-
-function downloadList() {
-  if (!allNames.length) {
-    allNames = generate();
-  }
-
-  const text = allNames.join("\n");
-  const blob = new Blob([text], {
-    type: "text/plain;charset=utf-8"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-
-  a.href = url;
-  a.download = "all-usernames.txt";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-start();
+generate();
 </script>
 </body>
 </html>
