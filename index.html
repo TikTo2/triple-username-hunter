@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triple Username Checker</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 18px;
+  background: #10121a;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 650px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  color: #e7a6ff;
+}
+
+.subtitle {
+  text-align: center;
+  color: #aaa;
+}
+
+.panel {
+  background: #1c2030;
+  padding: 15px;
+  border-radius: 13px;
+  margin: 15px 0;
+}
+
+input, button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 0;
+  font-size: 15px;
+}
+
+input {
+  width: 100%;
+  background: #10121a;
+  color: white;
+  border: 1px solid #444;
+  margin-bottom: 10px;
+}
+
+button {
+  cursor: pointer;
+  background: #7652d8;
+  color: white;
+  margin: 3px;
+}
+
+button.secondary {
+  background: #34394b;
+}
+
+button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #b9b9c8;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  background: #22283a;
+  padding: 10px;
+  margin: 7px 0;
+  border-radius: 9px;
+}
+
+.username {
+  direction: ltr;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  font-size: 12px;
+  padding: 9px;
+}
+
+.note {
+  color: #ffce77;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#results {
+  margin-top: 15px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Triple Username Checker</h1>
+<p class="subtitle">مولّد وفاحص مساعد ليوزرات إنستغرام الثلاثية</p>
+
+<div class="panel">
+  <h3>إعدادات البحث</h3>
+
+  <input id="search"
+    placeholder="ابحث عن اسم مثل a7x"
+    oninput="searchNames()">
+
+  <button onclick="start()">عرض جميع التركيبات</button>
+  <button class="secondary" onclick="downloadList()">
+    تحميل القائمة
+  </button>
+
+  <div class="stats">
+    <p>إجمالي التركيبات: <b>46,656</b></p>
+    <p>المعروض: <b id="shown">0</b></p>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>النتائج</h3>
+  <div id="results"></div>
+
+  <div style="text-align:center;margin-top:15px">
+    <button class="secondary" onclick="previousPage()">
+      السابق
+    </button>
+    <span id="page">1</span>
+    <button class="secondary" onclick="nextPage()">
+      التالي
+    </button>
+  </div>
+</div>
+
+<p class="note">
+تنبيه: هذه الأداة تولّد أسماء وتفتح صفحات إنستغرام فقط.
+لا تعتبر اختفاء الحساب أو ظهور صفحة غير موجودة دليلاً على توفر الاسم.
+تأكد من إمكانية اختيار الاسم من داخل إنستغرام.
+</p>
+
+</div>
+
+<script>
+const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+let allNames = [];
+let filtered = [];
+let currentPage = 1;
+const pageSize = 100;
+
+function generate() {
+  const names = [];
+
+  for (const a of chars) {
+    for (const b of chars) {
+      for (const c of chars) {
+        names.push(a + b + c);
+      }
+    }
+  }
+
+  return names;
+}
+
+function start() {
+  if (!allNames.length) {
+    allNames = generate();
+  }
+
+  filtered = allNames;
+  currentPage = 1;
+  render();
+}
+
+function searchNames() {
+  if (!allNames.length) {
+    allNames = generate();
+  }
+
+  const q = document.getElementById("search")
+    .value.toLowerCase().trim();
+
+  filtered = allNames.filter(name => name.includes(q));
+  currentPage = 1;
+  render();
+}
+
+function render() {
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const pageItems = filtered.slice(
+    startIndex, startIndex + pageSize
+  );
+
+  pageItems.forEach(name => {
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const username = document.createElement("span");
+    username.className = "username";
+    username.textContent = name;
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const copy = document.createElement("button");
+    copy.textContent = "نسخ";
+    copy.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(name);
+        copy.textContent = "تم النسخ";
+        setTimeout(() => copy.textContent = "نسخ", 1200);
+      } catch {
+        prompt("انسخ الاسم:", name);
+      }
+    };
+
+    const open = document.createElement("button");
+    open.textContent = "فتح إنستغرام";
+    open.className = "secondary";
+    open.onclick = () => {
+      window.open(
+        "https://www.instagram.com/" + name + "/",
+        "_blank",
+        "noopener"
+      );
+    };
+
+    actions.append(copy, open);
+    item.append(username, actions);
+    results.appendChild(item);
+  });
+
+  document.getElementById("shown").textContent =
+    filtered.length.toLocaleString();
+
+  document.getElementById("page").textContent =
+    currentPage + " / " +
+    Math.max(1, Math.ceil(filtered.length / pageSize));
+}
+
+function nextPage() {
+  if (currentPage * pageSize < filtered.length) {
+    currentPage++;
+    render();
+  }
+}
+
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    render();
+  }
+}
+
+function downloadList() {
+  if (!allNames.length) {
+    allNames = generate();
+  }
+
+  const text = allNames.join("\n");
+  const blob = new Blob([text], {
+    type: "text/plain;charset=utf-8"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "all-usernames.txt";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+start();
+</script>
+</body>
+</html>
