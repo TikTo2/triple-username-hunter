@@ -1,42 +1,135 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Triple Hunter</title>
+
 <style>
 *{box-sizing:border-box}
+
 body{
- margin:0;background:#0d1117;color:#fff;
- font-family:Arial,sans-serif;padding:20px
+ margin:0;
+ background:#0d1117;
+ color:white;
+ font-family:Arial,sans-serif;
+ padding:16px;
 }
-.container{max-width:650px;margin:auto}
-header{text-align:center;padding:25px 0}
+
+.container{max-width:750px;margin:auto}
+
+header{text-align:center;padding:20px}
+
 h1{color:#58a6ff;font-size:32px}
+
 p{color:#9ca3af}
+
 .panel{
- background:#161b22;border:1px solid #30363d;
- padding:18px;border-radius:14px;margin:15px 0
+ background:#161b22;
+ border:1px solid #30363d;
+ padding:18px;
+ border-radius:15px;
+ margin:15px 0;
 }
+
 button,input,select{
- padding:12px;border-radius:9px;border:1px solid #444;
- background:#21262d;color:white;font-size:15px
+ padding:12px;
+ border-radius:9px;
+ border:1px solid #444;
+ background:#21262d;
+ color:white;
+ font-size:14px;
 }
+
 button{cursor:pointer}
-.primary{background:#238636;width:100%;margin-top:12px}
-.results{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.item{
- background:#21262d;border:1px solid #30363d;
- border-radius:10px;padding:12px;text-align:center
+
+button:active{opacity:.7}
+
+.primary{
+ background:#238636;
+ width:100%;
+ margin-top:15px;
 }
-.username{font-size:23px;font-weight:bold;color:#58a6ff}
-.actions{display:flex;gap:6px;margin-top:10px}
-.actions button{flex:1;font-size:12px}
-.stats{display:flex;justify-content:space-around;text-align:center}
-.stats strong{display:block;color:#58a6ff;font-size:22px}
-input{width:100%;margin:7px 0}
+
+input,select{width:100%;margin:7px 0}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:12px;
+ text-align:center;
+}
+
+.stat{
+ background:#21262d;
+ padding:15px 5px;
+ border-radius:10px;
+}
+
+.stat strong{
+ display:block;
+ font-size:23px;
+ margin-bottom:5px;
+ color:#58a6ff;
+}
+
+.available{color:#3fb950!important}
+.unavailable{color:#f85149!important}
+.unknown{color:#d29922!important}
+
+.results{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:10px;
+}
+
+.item{
+ background:#161b22;
+ border:1px solid #30363d;
+ border-radius:12px;
+ padding:12px;
+ text-align:center;
+}
+
+.username{
+ font-size:24px;
+ font-weight:bold;
+ color:#58a6ff;
+ margin-bottom:8px;
+}
+
+.status{
+ font-size:13px;
+ margin-bottom:8px;
+ font-weight:bold;
+}
+
+.actions{
+ display:flex;
+ gap:5px;
+ margin-top:8px;
+}
+
+.actions button{
+ flex:1;
+ padding:9px 3px;
+ font-size:12px;
+}
+
+.status-select{
+ font-size:12px;
+ padding:8px;
+}
+
+.secondary{width:100%;margin-top:8px}
+
+@media(max-width:380px){
+ .results{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
 <div class="container">
 
@@ -56,7 +149,7 @@ input{width:100%;margin:7px 0}
 <option value="mixed">أحرف وأرقام</option>
 </select>
 
-<label>عدد النتائج المعروضة</label>
+<label>عدد النتائج</label>
 <select id="limit">
 <option value="100">100</option>
 <option value="500">500</option>
@@ -70,29 +163,97 @@ input{width:100%;margin:7px 0}
 </button>
 </div>
 
-<div class="panel stats">
-<div><strong id="total">0</strong>النتائج</div>
-<div><strong>46,656</strong>إجمالي التركيبات</div>
+<div class="panel">
+<h3>إحصائيات اليوزرات</h3>
+
+<div class="stats">
+<div class="stat">
+<strong id="total">0</strong>
+النتائج المعروضة
+</div>
+
+<div class="stat">
+<strong id="available" class="available">0</strong>
+متاح
+</div>
+
+<div class="stat">
+<strong id="unavailable" class="unavailable">0</strong>
+غير متاح
+</div>
+
+<div class="stat">
+<strong id="unknown" class="unknown">0</strong>
+غير مؤكد
+</div>
+</div>
 </div>
 
 <div class="panel">
-<input id="search" placeholder="ابحث عن يوزر..." oninput="render()">
-<button onclick="copyAll()">نسخ النتائج المعروضة</button>
+
+<h3>البحث والفلترة</h3>
+
+<input id="search"
+placeholder="ابحث عن يوزر..."
+oninput="render()">
+
+<select id="statusFilter" onchange="render()">
+<option value="all">جميع الحالات</option>
+<option value="available">المتاح</option>
+<option value="unavailable">غير المتاح</option>
+<option value="unknown">غير المؤكد</option>
+</select>
+
+<button class="secondary" onclick="copyAll()">
+نسخ النتائج المعروضة
+</button>
+
+<button class="secondary" onclick="exportResults()">
+تحميل النتائج TXT
+</button>
+
 </div>
 
 <div id="results" class="results"></div>
 
-<p style="text-align:center">
-الفحص النهائي للتوفر يتم يدوياً عبر إنستغرام.
+<p style="text-align:center;font-size:12px">
+TRIPLE HUNTER © 2026
+<br>
+حالات التوفر يتم تحديدها بعد التحقق اليدوي.
 </p>
+
 </div>
 
 <script>
+
 const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+
 let usernames=[];
 let shown=[];
 
+let statuses={};
+
+try{
+ statuses=JSON.parse(
+ localStorage.getItem("tripleHunterStatuses")||"{}"
+ );
+}catch(e){
+ statuses={};
+}
+
+function saveStatuses(){
+ localStorage.setItem(
+ "tripleHunterStatuses",
+ JSON.stringify(statuses)
+ );
+}
+
+function getStatus(name){
+ return statuses[name]||"unknown";
+}
+
 function generate(){
+
  usernames=[];
 
  const type=document.getElementById("type").value;
@@ -103,31 +264,71 @@ function generate(){
  for(let c of chars){
 
  const name=a+b+c;
+
  const letters=/^[a-z]+$/.test(name);
  const numbers=/^[0-9]+$/.test(name);
 
  if(type==="letters"&&!letters)continue;
  if(type==="numbers"&&!numbers)continue;
+
  if(type==="mixed"&&(letters||numbers))continue;
 
  usernames.push(name);
+
  }
  }
  }
 
  usernames=usernames.slice(0,limit);
+
+ document.getElementById("search").value="";
+ document.getElementById("statusFilter").value="all";
+
  render();
 }
 
+function setStatus(name,value){
+
+ statuses[name]=value;
+ saveStatuses();
+ render();
+
+}
+
 function render(){
+
  const query=document.getElementById("search").value.toLowerCase();
- shown=usernames.filter(u=>u.includes(query));
+ const filter=document.getElementById("statusFilter").value;
+
+ shown=usernames.filter(name=>{
+
+ const matchesSearch=name.includes(query);
+ const matchesStatus=filter==="all"||getStatus(name)===filter;
+
+ return matchesSearch&&matchesStatus;
+
+ });
+
+ let counts={
+ available:0,
+ unavailable:0,
+ unknown:0
+ };
+
+ shown.forEach(name=>{
+ counts[getStatus(name)]++;
+ });
+
  document.getElementById("total").textContent=shown.length;
+ document.getElementById("available").textContent=counts.available;
+ document.getElementById("unavailable").textContent=counts.unavailable;
+ document.getElementById("unknown").textContent=counts.unknown;
 
  const area=document.getElementById("results");
  area.innerHTML="";
 
- shown.slice(0,200).forEach(name=>{
+ shown.slice(0,300).forEach(name=>{
+
  const card=document.createElement("div");
  card.className="item";
 
@@ -135,30 +336,111 @@ function render(){
  title.className="username";
  title.textContent=name;
 
+ const current=getStatus(name);
+
+ const status=document.createElement("div");
+ status.className="status "+current;
+
+ const labels={
+ available:"متاح",
+ unavailable:"غير متاح",
+ unknown:"غير مؤكد"
+ };
+
+ status.textContent=labels[current];
+
+ const select=document.createElement("select");
+ select.className="status-select";
+
+ [
+ ["unknown","غير مؤكد"],
+ ["available","متاح"],
+ ["unavailable","غير متاح"]
+ ].forEach(([value,label])=>{
+
+ const option=document.createElement("option");
+ option.value=value;
+ option.textContent=label;
+ option.selected=value===current;
+ select.appendChild(option);
+
+ });
+
+ select.onchange=()=>setStatus(name,select.value);
+
  const actions=document.createElement("div");
  actions.className="actions";
 
  const copy=document.createElement("button");
  copy.textContent="نسخ";
- copy.onclick=()=>navigator.clipboard.writeText(name);
+ copy.onclick=()=>copyText(name);
 
  const open=document.createElement("button");
  open.textContent="فتح إنستغرام";
  open.onclick=()=>window.open(
- "https://www.instagram.com/"+name+"/","_blank"
+ "https://www.instagram.com/"+name+"/",
+ "_blank"
  );
 
  actions.append(copy,open);
- card.append(title,actions);
- area.append(card);
+
+ card.append(title,status,select,actions);
+
+ area.appendChild(card);
+
  });
+
+ if(shown.length>300){
+ const note=document.createElement("p");
+ note.style.gridColumn="1/-1";
+ note.style.textAlign="center";
+ note.textContent="يتم عرض أول 300 نتيجة. استخدم البحث لتضييق النتائج.";
+ area.appendChild(note);
+ }
+
 }
 
-function copyAll(){
- navigator.clipboard.writeText(shown.join("\n"));
+async function copyText(text){
+
+ try{
+ await navigator.clipboard.writeText(text);
+ alert("تم نسخ: "+text);
+ }catch(e){
+ prompt("انسخ اليوزر:",text);
+ }
+
+}
+
+async function copyAll(){
+
+ await copyText(shown.join("\n"));
+
+}
+
+function exportResults(){
+
+ const content=shown.map(name=>
+ name+" - "+getStatus(name)
+ ).join("\n");
+
+ const blob=new Blob(
+ [content],
+ {type:"text/plain;charset=utf-8"}
+ );
+
+ const url=URL.createObjectURL(blob);
+
+ const link=document.createElement("a");
+ link.href=url;
+ link.download="triple-hunter-results.txt";
+ link.click();
+
+ URL.revokeObjectURL(url);
+
 }
 
 generate();
+
 </script>
 </body>
 </html>
