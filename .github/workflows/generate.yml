@@ -1,0 +1,45 @@
+
+name: Triple Username Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Number of usernames"
+        required: true
+        default: "1000"
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate usernames
+        run: |
+          python -c "
+          import sys
+          from main import generate_usernames
+          count = int(sys.argv[1])
+          names = generate_usernames(count)
+          with open('usernames.txt', 'w') as f:
+              f.write('\n'.join(names))
+          print(f'Generated {len(names)} usernames')
+          " "${{ inputs.count }}"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: usernames-list
+          path: usernames.txt
+          
